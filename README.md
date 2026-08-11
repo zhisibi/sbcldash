@@ -90,8 +90,8 @@ chmod +x gradlew
 ### 💡 常见问题 (Troubleshooting)
 - **Release APK 签名配置**：
   当环境变量 `STORE_PASSWORD` 与密钥文件未配置时，Release 构建任务会平滑回退使用 AGP 内置默认签名（Default Debug Key），确保 GitHub Actions CI 及本地能直接打出可安装测试的 Release APK。
-- **KSP / Room 编译空指针异常 (`Task :app:kspDebugKotlin NullPointerException`)**：
-  在 KSP2 模式下，项目已配置 `ksp.useKSP2=true` 与 `ksp { arg("room.generateKotlin", "true") }` 参数。如果遇到 KSP 线程异常，请确保清理 Gradle 缓存后重新构建：`./gradlew clean assembleDebug`。
+- **KSP / Room 编译空指针异常 (`Task :app:kspReleaseKotlin / kspDebugKotlin NullPointerException`)**：
+  在 CI 环境（如 GitHub Actions）下，KSP 处理 OpenAPI Application 时若开启 `kotlin.compiler.execution.strategy=in-process` 可能会导致 AWT 线程空指针错误。已在 `gradle.properties` 中添加 `-Djava.awt.headless=true` 并使用标准的 Kotlin Daemon/Worker 策略解决该问题。
 
 ---
 
