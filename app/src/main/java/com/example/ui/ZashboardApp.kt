@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Link
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +40,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,12 +49,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.components.CrashLogDialog
 import com.example.ui.components.ThemeSelectionSheet
 import com.example.ui.screens.BackendsScreen
 import com.example.ui.screens.ConnectionsScreen
@@ -79,6 +85,9 @@ fun ZashboardApp(
     val selectedWallpaper by viewModel.selectedWallpaperPreset.collectAsState()
     val wallpaperOpacity by viewModel.wallpaperOpacity.collectAsState()
     val showThemeSheet by viewModel.showThemeSheet.collectAsState()
+
+    val showCrashLogDialog by viewModel.showCrashLogDialog.collectAsState()
+    val hasUnreadCrashLog by viewModel.hasUnreadCrashLog.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.toastEvents.collect { message ->
@@ -173,6 +182,28 @@ fun ZashboardApp(
                             }
 
                             Spacer(modifier = Modifier.width(4.dp))
+
+                            IconButton(
+                                onClick = { viewModel.openCrashLogDialog() },
+                                modifier = Modifier.testTag("top_app_bar_crash_log")
+                            ) {
+                                BadgedBox(
+                                    badge = {
+                                        if (hasUnreadCrashLog) {
+                                            Badge(
+                                                containerColor = MaterialTheme.colorScheme.error,
+                                                contentColor = MaterialTheme.colorScheme.onError
+                                            )
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.BugReport,
+                                        contentDescription = if (isChinese) "崩溃与运行日志" else "Crash Logs",
+                                        tint = if (hasUnreadCrashLog) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
 
                             IconButton(
                                 onClick = { viewModel.openThemeSheet() },
@@ -334,6 +365,15 @@ fun ZashboardApp(
                     onOpacityChange = { viewModel.setWallpaperOpacity(it) },
                     onResetDefault = { viewModel.resetThemeToDefault() },
                     onDismiss = { viewModel.closeThemeSheet() }
+                )
+            }
+
+            // Crash Log Dialog
+            if (showCrashLogDialog) {
+                CrashLogDialog(
+                    isChinese = isChinese,
+                    onDismiss = { viewModel.closeCrashLogDialog() },
+                    onLogsCleared = { viewModel.refreshCrashLogStatus() }
                 )
             }
         }

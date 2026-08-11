@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Search
@@ -105,6 +106,27 @@ fun RulesAndLogsScreen(
                     }
                 },
                 modifier = Modifier.testTag("tab_logs")
+            )
+
+            Tab(
+                selected = false,
+                onClick = { viewModel.openCrashLogDialog() },
+                text = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.BugReport,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isChinese) "崩溃日志" else "Crash Logs",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                modifier = Modifier.testTag("tab_crash_logs")
             )
         }
 

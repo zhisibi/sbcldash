@@ -14,6 +14,7 @@ import com.example.ui.viewmodel.DashboardViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.example.util.CrashLogManager.init(applicationContext)
         enableEdgeToEdge()
         setContent {
             ZashboardTheme {

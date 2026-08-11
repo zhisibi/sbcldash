@@ -105,6 +105,29 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _showThemeSheet = MutableStateFlow(false)
     val showThemeSheet: StateFlow<Boolean> = _showThemeSheet.asStateFlow()
 
+    // Crash Log Dialog State
+    private val _showCrashLogDialog = MutableStateFlow(false)
+    val showCrashLogDialog: StateFlow<Boolean> = _showCrashLogDialog.asStateFlow()
+
+    private val _hasUnreadCrashLog = MutableStateFlow(
+        com.example.util.CrashLogManager.hasUnreadCrash(application)
+    )
+    val hasUnreadCrashLog: StateFlow<Boolean> = _hasUnreadCrashLog.asStateFlow()
+
+    fun openCrashLogDialog() {
+        _showCrashLogDialog.value = true
+        com.example.util.CrashLogManager.markCrashRead(getApplication())
+        _hasUnreadCrashLog.value = false
+    }
+
+    fun closeCrashLogDialog() {
+        _showCrashLogDialog.value = false
+    }
+
+    fun refreshCrashLogStatus() {
+        _hasUnreadCrashLog.value = com.example.util.CrashLogManager.hasUnreadCrash(getApplication())
+    }
+
     fun openThemeSheet() {
         _showThemeSheet.value = true
     }
