@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.screens.BackendsScreen
@@ -102,45 +103,49 @@ fun ZashboardApp(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        // Connection / Demo Badge Chip
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    if (isDemoMode) MaterialTheme.colorScheme.tertiaryContainer
-                                    else if (isConnected) DelayGreen.copy(alpha = 0.2f)
-                                    else MaterialTheme.colorScheme.errorContainer
-                                )
-                                .clickable { selectedTab = 4 }
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            if (isDemoMode) MaterialTheme.colorScheme.tertiary
-                                            else if (isConnected) DelayGreen
-                                            else MaterialTheme.colorScheme.error
-                                        )
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = if (isDemoMode) "DEMO" else activeBackend?.name ?: "127.0.0.1",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                    color = if (isDemoMode) MaterialTheme.colorScheme.onTertiaryContainer
-                                    else if (isConnected) DelayGreen
-                                    else MaterialTheme.colorScheme.onErrorContainer
-                                )
-                            }
-                        }
                     }
                 },
                 actions = {
+                    // Small connection indicator dot + chip
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                if (isDemoMode) MaterialTheme.colorScheme.tertiaryContainer
+                                else if (isConnected) DelayGreen.copy(alpha = 0.18f)
+                                else MaterialTheme.colorScheme.errorContainer
+                            )
+                            .clickable { selectedTab = 4 }
+                            .padding(horizontal = 8.dp, vertical = 5.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (isDemoMode) MaterialTheme.colorScheme.tertiary
+                                        else if (isConnected) DelayGreen
+                                        else MaterialTheme.colorScheme.error
+                                    )
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = if (isChinese) {
+                                    if (isDemoMode) "演示" else if (isConnected) "在线" else "离线"
+                                } else {
+                                    if (isDemoMode) "DEMO" else if (isConnected) "ONLINE" else "OFFLINE"
+                                },
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = if (isDemoMode) MaterialTheme.colorScheme.onTertiaryContainer
+                                else if (isConnected) DelayGreen
+                                else MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
@@ -157,7 +162,7 @@ fun ZashboardApp(
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
 
                     IconButton(
                         onClick = { viewModel.refreshData() },
@@ -184,7 +189,15 @@ fun ZashboardApp(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     icon = { Icon(Icons.Default.Dashboard, contentDescription = "Overview") },
-                    label = { Text(if (isChinese) "概览" else "Overview", fontSize = 11.sp) },
+                    label = { 
+                        Text(
+                            text = if (isChinese) "概览" else "Overview", 
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
+                        ) 
+                    },
                     modifier = Modifier.testTag("nav_item_overview")
                 )
 
@@ -192,7 +205,15 @@ fun ZashboardApp(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     icon = { Icon(Icons.Default.Dns, contentDescription = "Proxies") },
-                    label = { Text(if (isChinese) "节点" else "Proxies", fontSize = 11.sp) },
+                    label = { 
+                        Text(
+                            text = if (isChinese) "节点" else "Proxies", 
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
+                        ) 
+                    },
                     modifier = Modifier.testTag("nav_item_proxies")
                 )
 
@@ -200,7 +221,15 @@ fun ZashboardApp(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
                     icon = { Icon(Icons.Default.Link, contentDescription = "Conns") },
-                    label = { Text(if (isChinese) "连接" else "Conns", fontSize = 11.sp) },
+                    label = { 
+                        Text(
+                            text = if (isChinese) "连接" else "Conns", 
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
+                        ) 
+                    },
                     modifier = Modifier.testTag("nav_item_connections")
                 )
 
@@ -208,7 +237,15 @@ fun ZashboardApp(
                     selected = selectedTab == 3,
                     onClick = { selectedTab = 3 },
                     icon = { Icon(Icons.Default.ListAlt, contentDescription = "Rules & Logs") },
-                    label = { Text(if (isChinese) "规则/日志" else "Rules/Logs", fontSize = 11.sp) },
+                    label = { 
+                        Text(
+                            text = if (isChinese) "规则日志" else "Rules/Logs", 
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
+                        ) 
+                    },
                     modifier = Modifier.testTag("nav_item_rules")
                 )
 
@@ -216,7 +253,15 @@ fun ZashboardApp(
                     selected = selectedTab == 4,
                     onClick = { selectedTab = 4 },
                     icon = { Icon(Icons.Default.Settings, contentDescription = "Backends") },
-                    label = { Text(if (isChinese) "后端" else "Backends", fontSize = 11.sp) },
+                    label = { 
+                        Text(
+                            text = if (isChinese) "后端" else "Backends", 
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
+                        ) 
+                    },
                     modifier = Modifier.testTag("nav_item_backends")
                 )
             }

@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.MetricCard
@@ -73,6 +74,7 @@ fun OverviewScreen(
     val activeBackend by viewModel.activeBackend.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
     val isDemoMode by viewModel.isDemoMode.collectAsState()
+    val isChinese by viewModel.isChinese.collectAsState()
     val versionInfo by viewModel.versionInfo.collectAsState()
     val trafficCurrent by viewModel.trafficCurrent.collectAsState()
     val trafficHistory by viewModel.trafficHistory.collectAsState()
@@ -118,7 +120,7 @@ fun OverviewScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (isConnected) "CONNECTED • CORE ONLINE" else "CORE OFFLINE",
+                            text = if (isConnected) (if (isChinese) "核心在线 • 已连接" else "CONNECTED • CORE ONLINE") else (if (isChinese) "核心离线" else "CORE OFFLINE"),
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.sp
@@ -136,7 +138,7 @@ fun OverviewScreen(
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = "DEMO MODE",
+                                    text = if (isChinese) "演示模式" else "DEMO MODE",
                                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -157,29 +159,36 @@ fun OverviewScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Core Version",
+                            text = if (isChinese) "核心版本" else "Core Version",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = versionInfo?.version ?: "Clash Premium v1.18",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
 
-                    Column(horizontalAlignment = Alignment.End) {
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.End
+                    ) {
                         Text(
-                            text = "Active Profile",
+                            text = if (isChinese) "当前后端" else "Active Profile",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -187,6 +196,8 @@ fun OverviewScreen(
                             text = activeBackend?.name ?: "Local Core (127.0.0.1)",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.clickable { onNavigateToBackends() }
                         )
                     }
@@ -211,7 +222,7 @@ fun OverviewScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "REAL-TIME TRAFFIC",
+                        text = if (isChinese) "实时网络流量" else "REAL-TIME TRAFFIC",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.2.sp
@@ -269,9 +280,9 @@ fun OverviewScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             MetricCard(
-                title = "DOWNLOAD",
+                title = if (isChinese) "下载速度" else "DOWNLOAD",
                 value = formatSpeed(trafficCurrent.down),
-                subtitle = "Peak: " + formatSpeed(trafficHistory.maxOfOrNull { it.first } ?: 0L),
+                subtitle = (if (isChinese) "峰值: " else "Peak: ") + formatSpeed(trafficHistory.maxOfOrNull { it.first } ?: 0L),
                 icon = Icons.Default.ArrowDownward,
                 iconColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -280,9 +291,9 @@ fun OverviewScreen(
             )
 
             MetricCard(
-                title = "UPLOAD",
+                title = if (isChinese) "上传速度" else "UPLOAD",
                 value = formatSpeed(trafficCurrent.up),
-                subtitle = "Peak: " + formatSpeed(trafficHistory.maxOfOrNull { it.second } ?: 0L),
+                subtitle = (if (isChinese) "峰值: " else "Peak: ") + formatSpeed(trafficHistory.maxOfOrNull { it.second } ?: 0L),
                 icon = Icons.Default.ArrowUpward,
                 iconColor = UploadColor,
                 modifier = Modifier
@@ -321,7 +332,7 @@ fun OverviewScreen(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "BACKEND",
+                        text = if (isChinese) "核心后端" else "BACKEND",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -356,15 +367,15 @@ fun OverviewScreen(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "MODE",
+                        text = if (isChinese) "运行模式" else "MODE",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = when (configsInfo.mode.lowercase()) {
-                            "global" -> "Global (全局)"
-                            "direct" -> "Direct (直连)"
-                            else -> "Rule-based (规则)"
+                            "global" -> if (isChinese) "全局代理" else "Global (全局)"
+                            "direct" -> if (isChinese) "直连模式" else "Direct (直连)"
+                            else -> if (isChinese) "规则分流" else "Rule-based (规则)"
                         },
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
@@ -390,7 +401,7 @@ fun OverviewScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "ACTIVE PROXY",
+                        text = if (isChinese) "当前代理节点" else "ACTIVE PROXY",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
@@ -405,7 +416,7 @@ fun OverviewScreen(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "PRO",
+                            text = if (isChinese) "高级" else "PRO",
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -449,7 +460,7 @@ fun OverviewScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Latency: 42ms • Vless/gRPC",
+                                text = (if (isChinese) "延迟: " else "Latency: ") + "42ms • Vless/gRPC",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -490,7 +501,7 @@ fun OverviewScreen(
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Text(
-                    text = "CORE ROUTING SELECTOR (分流模式)",
+                    text = if (isChinese) "核心路由模式" else "CORE ROUTING SELECTOR (分流模式)",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -502,9 +513,9 @@ fun OverviewScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     val modes = listOf(
-                        "rule" to "Rule (规则)",
-                        "global" to "Global (全局)",
-                        "direct" to "Direct (直连)"
+                        "rule" to (if (isChinese) "规则分流" else "Rule (规则)"),
+                        "global" to (if (isChinese) "全局代理" else "Global (全局)"),
+                        "direct" to (if (isChinese) "直连模式" else "Direct (直连)")
                     )
 
                     modes.forEach { (modeKey, modeLabel) ->
@@ -540,12 +551,12 @@ fun OverviewScreen(
                 ) {
                     Column {
                         Text(
-                            text = "Allow LAN (局域网共享)",
+                            text = if (isChinese) "局域网共享 (Allow LAN)" else "Allow LAN (局域网共享)",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Mixed Port: ${configsInfo.mixedPort.takeIf { it > 0 } ?: 7890}",
+                            text = (if (isChinese) "混合端口: " else "Mixed Port: ") + "${configsInfo.mixedPort.takeIf { it > 0 } ?: 7890}",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -588,7 +599,7 @@ fun OverviewScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Core Memory Usage",
+                            text = if (isChinese) "核心内存占用" else "Core Memory Usage",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -640,7 +651,7 @@ fun OverviewScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "RESTART KERNEL & SYNC",
+                    text = if (isChinese) "重启内核与同步" else "RESTART KERNEL & SYNC",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 Icon(

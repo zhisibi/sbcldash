@@ -60,6 +60,7 @@ fun RulesAndLogsScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    val isChinese by viewModel.isChinese.collectAsState()
 
     Column(
         modifier = modifier
@@ -82,7 +83,7 @@ fun RulesAndLogsScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Routing Rules")
+                        Text(if (isChinese) "分流规则" else "Routing Rules")
                     }
                 },
                 modifier = Modifier.testTag("tab_rules")
@@ -99,7 +100,7 @@ fun RulesAndLogsScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Live Logs")
+                        Text(if (isChinese) "实时日志" else "Live Logs")
                     }
                 },
                 modifier = Modifier.testTag("tab_logs")
@@ -107,15 +108,15 @@ fun RulesAndLogsScreen(
         }
 
         if (selectedTab == 0) {
-            RulesTabContent(viewModel = viewModel)
+            RulesTabContent(viewModel = viewModel, isChinese = isChinese)
         } else {
-            LogsTabContent(viewModel = viewModel)
+            LogsTabContent(viewModel = viewModel, isChinese = isChinese)
         }
     }
 }
 
 @Composable
-fun RulesTabContent(viewModel: DashboardViewModel) {
+fun RulesTabContent(viewModel: DashboardViewModel, isChinese: Boolean) {
     val rulesState by viewModel.rulesState.collectAsState()
     val searchQuery by viewModel.ruleSearchQuery.collectAsState()
 
@@ -135,7 +136,7 @@ fun RulesTabContent(viewModel: DashboardViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("rule_search_field"),
-            placeholder = { Text("Filter routing rules by domain, IP, or target...") },
+            placeholder = { Text(if (isChinese) "搜索规则 (按域名、IP或目标代理)..." else "Filter routing rules by domain, IP, or target...") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -158,14 +159,14 @@ fun RulesTabContent(viewModel: DashboardViewModel) {
                 items = filteredRules,
                 key = { "${it.type}_${it.payload}_${it.proxy}" }
             ) { rule ->
-                RuleCardItem(rule = rule)
+                RuleCardItem(rule = rule, isChinese = isChinese)
             }
         }
     }
 }
 
 @Composable
-fun RuleCardItem(rule: RuleItem) {
+fun RuleCardItem(rule: RuleItem, isChinese: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -197,7 +198,7 @@ fun RuleCardItem(rule: RuleItem) {
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = rule.payload.ifBlank { "* (All unmatched traffic)" },
+                    text = rule.payload.ifBlank { if (isChinese) "* (所有未匹配流量)" else "* (All unmatched traffic)" },
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -222,7 +223,7 @@ fun RuleCardItem(rule: RuleItem) {
 }
 
 @Composable
-fun LogsTabContent(viewModel: DashboardViewModel) {
+fun LogsTabContent(viewModel: DashboardViewModel, isChinese: Boolean) {
     val logsList by viewModel.logsList.collectAsState()
     val filterLevel by viewModel.logFilterLevel.collectAsState()
 
@@ -238,12 +239,17 @@ fun LogsTabContent(viewModel: DashboardViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                val levels = listOf("ALL", "INFO", "WARN", "ERROR")
-                levels.forEach { lvl ->
+                val levels = listOf(
+                    "ALL" to (if (isChinese) "全部" else "ALL"),
+                    "INFO" to "INFO",
+                    "WARN" to "WARN",
+                    "ERROR" to "ERROR"
+                )
+                levels.forEach { (lvl, label) ->
                     FilterChip(
                         selected = filterLevel == lvl,
                         onClick = { viewModel.logFilterLevel.value = lvl },
-                        label = { Text(lvl, fontSize = 11.sp) },
+                        label = { Text(label, fontSize = 11.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
                         )
@@ -254,7 +260,7 @@ fun LogsTabContent(viewModel: DashboardViewModel) {
             IconButton(onClick = { viewModel.clearLogs() }) {
                 Icon(
                     imageVector = Icons.Default.DeleteSweep,
-                    contentDescription = "Clear logs",
+                    contentDescription = if (isChinese) "清空日志" else "Clear logs",
                     tint = MaterialTheme.colorScheme.error
                 )
             }

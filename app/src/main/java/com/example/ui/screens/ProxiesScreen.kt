@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.ProxyNode
@@ -68,6 +69,7 @@ fun ProxiesScreen(
 ) {
     val proxiesState by viewModel.proxiesState.collectAsState()
     val searchQuery by viewModel.proxySearchQuery.collectAsState()
+    val isChinese by viewModel.isChinese.collectAsState()
 
     val proxiesMap = proxiesState.proxies
 
@@ -90,52 +92,67 @@ fun ProxiesScreen(
     ) {
         // Search & Latency Test Bar
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { viewModel.proxySearchQuery.value = it },
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("proxy_search_field"),
-                        placeholder = { Text("Search proxy group or node...") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search"
-                            )
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            focusedContainerColor = MaterialTheme.colorScheme.surface
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = {
-                            // Test latency for main group nodes
-                            groups.keys.forEach { groupName ->
-                                viewModel.testProxyDelay(groupName)
-                            }
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.testTag("btn_speedtest_all")
-                    ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.proxySearchQuery.value = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(52.dp)
+                        .testTag("proxy_search_field"),
+                    placeholder = { 
+                        Text(
+                            text = if (isChinese) "搜索节点或分组..." else "Search proxy group or node...",
+                            fontSize = 13.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        ) 
+                    },
+                    leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Speed,
-                            contentDescription = "Test Delay",
-                            modifier = Modifier.size(18.dp)
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Speedtest", fontSize = 12.sp)
-                    }
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        // Test latency for main group nodes
+                        groups.keys.forEach { groupName ->
+                            viewModel.testProxyDelay(groupName)
+                        }
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .height(52.dp)
+                        .testTag("btn_speedtest_all")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Speed,
+                        contentDescription = "Test Delay",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (isChinese) "测速" else "Speedtest", 
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false
+                    )
                 }
             }
         }

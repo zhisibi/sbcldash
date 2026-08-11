@@ -56,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -70,6 +71,7 @@ fun BackendsScreen(
 ) {
     val backends by viewModel.backends.collectAsState()
     val isDemoMode by viewModel.isDemoMode.collectAsState()
+    val isChinese by viewModel.isChinese.collectAsState()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingBackend by remember { mutableStateOf<BackendEntity?>(null) }
@@ -175,6 +177,7 @@ fun BackendsScreen(
             ) { backend ->
                 BackendCardItem(
                     backend = backend,
+                    isChinese = isChinese,
                     onSelectActive = { viewModel.selectActiveBackend(backend.id) },
                     onEdit = {
                         editingBackend = backend
@@ -222,6 +225,7 @@ fun BackendsScreen(
 @Composable
 fun BackendCardItem(
     backend: BackendEntity,
+    isChinese: Boolean,
     onSelectActive: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -263,7 +267,9 @@ fun BackendCardItem(
                             Text(
                                 text = backend.name,
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
 
                             if (backend.isActive) {
@@ -275,7 +281,7 @@ fun BackendCardItem(
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
-                                        text = "ACTIVE",
+                                        text = if (isChinese) "已激活" else "ACTIVE",
                                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                         color = MaterialTheme.colorScheme.onPrimary
                                     )
@@ -289,7 +295,9 @@ fun BackendCardItem(
                         Text(
                             text = "$scheme://${backend.host}:${backend.port}",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -320,7 +328,10 @@ fun BackendCardItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(
                         imageVector = Icons.Default.Key,
                         contentDescription = "Secret",
@@ -329,20 +340,35 @@ fun BackendCardItem(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (backend.secret.isBlank()) "No Secret Token" else "Secret Token Protected",
+                        text = if (backend.secret.isBlank()) 
+                            (if (isChinese) "无密钥保护" else "No Secret Token") 
+                        else 
+                            (if (isChinese) "密钥保护中" else "Secret Token Protected"),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                TextButton(onClick = onTestConnection) {
+                Spacer(modifier = Modifier.width(8.dp))
+
+                TextButton(
+                    onClick = onTestConnection,
+                    modifier = Modifier.testTag("btn_test_backend_${backend.id}")
+                ) {
                     Icon(
                         imageVector = Icons.Default.NetworkCheck,
                         contentDescription = "Test",
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Test Connection", fontSize = 12.sp)
+                    Text(
+                        text = if (isChinese) "测试连接" else "Test Connection", 
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        softWrap = false
+                    )
                 }
             }
         }

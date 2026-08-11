@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.ConnectionItem
@@ -62,6 +63,7 @@ fun ConnectionsScreen(
 ) {
     val connectionsState by viewModel.connectionsState.collectAsState()
     val searchQuery by viewModel.connectionSearchQuery.collectAsState()
+    val isChinese by viewModel.isChinese.collectAsState()
 
     var selectedConnectionDetail by remember { mutableStateOf<ConnectionItem?>(null) }
 
@@ -102,7 +104,10 @@ fun ConnectionsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Link,
                                 contentDescription = null,
@@ -111,11 +116,15 @@ fun ConnectionsScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Active Connections (${connectionsState.connections.size})",
+                                text = if (isChinese) "活跃连接 (${connectionsState.connections.size})" else "Active Connections (${connectionsState.connections.size})",
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
+
+                        Spacer(modifier = Modifier.width(8.dp))
 
                         Button(
                             onClick = { viewModel.closeAllConnections() },
@@ -128,7 +137,12 @@ fun ConnectionsScreen(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Close All", fontSize = 12.sp)
+                            Text(
+                                text = if (isChinese) "断开全部" else "Close All", 
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                softWrap = false
+                            )
                         }
                     }
 
@@ -140,7 +154,7 @@ fun ConnectionsScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Total Downloaded",
+                                text = if (isChinese) "总下载量" else "Total Downloaded",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -155,7 +169,7 @@ fun ConnectionsScreen(
 
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = "Total Uploaded",
+                                text = if (isChinese) "总上传量" else "Total Uploaded",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -180,7 +194,7 @@ fun ConnectionsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("connection_search_field"),
-                placeholder = { Text("Search host, IP, rule or process...") },
+                placeholder = { Text(if (isChinese) "搜索主机、IP、规则或进程..." else "Search host, IP, rule or process...") },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -221,12 +235,12 @@ fun ConnectionsScreen(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "No Connections Tracked",
+                            text = if (isChinese) "暂无活跃网络连接" else "No Connections Tracked",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Active network requests will appear here in real-time.",
+                            text = if (isChinese) "新的网络请求将在这里实时显示" else "Active network requests will appear here in real-time.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 4.dp)
@@ -241,6 +255,7 @@ fun ConnectionsScreen(
             ) { item ->
                 ConnectionCardItem(
                     item = item,
+                    isChinese = isChinese,
                     onClose = { viewModel.closeConnection(item.id) },
                     onDetailClick = { selectedConnectionDetail = item }
                 )
@@ -254,26 +269,26 @@ fun ConnectionsScreen(
             onDismissRequest = { selectedConnectionDetail = null },
             title = {
                 Text(
-                    text = "Connection Metadata",
+                    text = if (isChinese) "网络连接元数据" else "Connection Metadata",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Host: ${conn.metadata.host ?: "N/A"}")
-                    Text("Destination: ${conn.metadata.destinationIP}:${conn.metadata.destinationPort}")
-                    Text("Source IP: ${conn.metadata.sourceIP}")
-                    Text("Network Protocol: ${conn.metadata.network?.uppercase()} / ${conn.metadata.type}")
-                    Text("Process: ${conn.metadata.processPath ?: "Unknown"}")
-                    Text("Matched Rule: ${conn.rule} (${conn.rulePayload ?: "Match"})")
-                    Text("Chains: ${conn.chains.joinToString(" ➔ ")}")
-                    Text("Download: ${formatBytes(conn.download)}")
-                    Text("Upload: ${formatBytes(conn.upload)}")
+                    Text(if (isChinese) "目标主机: ${conn.metadata.host ?: "无"}" else "Host: ${conn.metadata.host ?: "N/A"}")
+                    Text(if (isChinese) "目标 IP/端口: ${conn.metadata.destinationIP}:${conn.metadata.destinationPort}" else "Destination: ${conn.metadata.destinationIP}:${conn.metadata.destinationPort}")
+                    Text(if (isChinese) "源 IP 地址: ${conn.metadata.sourceIP}" else "Source IP: ${conn.metadata.sourceIP}")
+                    Text(if (isChinese) "网络协议类型: ${conn.metadata.network?.uppercase()} / ${conn.metadata.type}" else "Network Protocol: ${conn.metadata.network?.uppercase()} / ${conn.metadata.type}")
+                    Text(if (isChinese) "应用进程路径: ${conn.metadata.processPath ?: "未知进程"}" else "Process: ${conn.metadata.processPath ?: "Unknown"}")
+                    Text(if (isChinese) "匹配路由规则: ${conn.rule} (${conn.rulePayload ?: "完全匹配"})" else "Matched Rule: ${conn.rule} (${conn.rulePayload ?: "Match"})")
+                    Text(if (isChinese) "代理节点链路: ${conn.chains.joinToString(" ➔ ")}" else "Chains: ${conn.chains.joinToString(" ➔ ")}")
+                    Text(if (isChinese) "已下载数据: ${formatBytes(conn.download)}" else "Download: ${formatBytes(conn.download)}")
+                    Text(if (isChinese) "已上传数据: ${formatBytes(conn.upload)}" else "Upload: ${formatBytes(conn.upload)}")
                 }
             },
             confirmButton = {
                 TextButton(onClick = { selectedConnectionDetail = null }) {
-                    Text("Close")
+                    Text(if (isChinese) "关闭" else "Close")
                 }
             }
         )
@@ -283,6 +298,7 @@ fun ConnectionsScreen(
 @Composable
 fun ConnectionCardItem(
     item: ConnectionItem,
+    isChinese: Boolean,
     onClose: () -> Unit,
     onDetailClick: () -> Unit
 ) {
@@ -322,7 +338,7 @@ fun ConnectionCardItem(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = item.metadata.host?.ifBlank { item.metadata.destinationIP ?: "Unknown Host" } ?: "Unknown",
+                        text = item.metadata.host?.ifBlank { item.metadata.destinationIP ?: (if (isChinese) "未知主机" else "Unknown Host") } ?: (if (isChinese) "未知" else "Unknown"),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1
@@ -348,7 +364,7 @@ fun ConnectionCardItem(
 
             // Proxy Chain path
             Text(
-                text = item.chains.joinToString(" ➔ ").ifBlank { "Direct" },
+                text = item.chains.joinToString(" ➔ ").ifBlank { if (isChinese) "直连" else "Direct" },
                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                 color = MaterialTheme.colorScheme.primary,
                 maxLines = 1
@@ -362,7 +378,7 @@ fun ConnectionCardItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Rule: ${item.rule ?: "Match"} (${item.rulePayload ?: "*"})",
+                    text = (if (isChinese) "规则: " else "Rule: ") + "${item.rule ?: "Match"} (${item.rulePayload ?: "*"})",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
