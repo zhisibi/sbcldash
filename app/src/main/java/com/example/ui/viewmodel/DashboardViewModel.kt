@@ -114,7 +114,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 } else null
             }
             WallpaperPresetId.NONE -> null
-            else -> preset.drawableRes
+            else -> preset.colorLong
         }
     }.stateIn(
         scope = viewModelScope,

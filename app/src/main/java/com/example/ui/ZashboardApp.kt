@@ -108,14 +108,23 @@ fun ZashboardApp(
         ) {
             // Render Background Wallpaper if selected
             if (activeWallpaperModel != null) {
-                AsyncImage(
-                    model = activeWallpaperModel,
-                    contentDescription = "Background Wallpaper",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(wallpaperOpacity),
-                    contentScale = ContentScale.Crop
-                )
+                if (activeWallpaperModel is Long) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(activeWallpaperModel as Long))
+                            .alpha(wallpaperOpacity)
+                    )
+                } else {
+                    AsyncImage(
+                        model = activeWallpaperModel,
+                        contentDescription = "Background Wallpaper",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(wallpaperOpacity),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
 
             Scaffold(

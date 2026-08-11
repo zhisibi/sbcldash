@@ -278,37 +278,43 @@ enum class WallpaperPresetId(
     val id: String,
     val nameZh: String,
     val nameEn: String,
-    val drawableRes: Int?
+    val colorLong: Long?
 ) {
     NONE(
         id = "NONE",
-        nameZh = "无壁纸 (纯色)",
-        nameEn = "Solid Color",
-        drawableRes = null
+        nameZh = "默认无",
+        nameEn = "Default Theme",
+        colorLong = null
     ),
-    CYBER_GRID(
-        id = "CYBER_GRID",
-        nameZh = "赛博网格",
-        nameEn = "Cyber Grid",
-        drawableRes = R.drawable.img_wallpaper_cyber
+    COLOR_DARK_SLATE(
+        id = "COLOR_DARK_SLATE",
+        nameZh = "极夜暗灰",
+        nameEn = "Dark Slate",
+        colorLong = 0xFF161A22L
     ),
-    DEEP_OCEAN(
-        id = "DEEP_OCEAN",
-        nameZh = "深海浪花",
-        nameEn = "Deep Ocean",
-        drawableRes = R.drawable.img_wallpaper_ocean
+    COLOR_SOFT_MINT(
+        id = "COLOR_SOFT_MINT",
+        nameZh = "清新薄荷",
+        nameEn = "Fresh Mint",
+        colorLong = 0xFFEBF7F0L
     ),
-    STARRY_COSMOS(
-        id = "STARRY_COSMOS",
-        nameZh = "璀璨星空",
-        nameEn = "Starry Cosmos",
-        drawableRes = R.drawable.img_wallpaper_cosmos
+    COLOR_WARM_AMBER(
+        id = "COLOR_WARM_AMBER",
+        nameZh = "暖调琥珀",
+        nameEn = "Warm Amber",
+        colorLong = 0xFFFFF8E7L
+    ),
+    COLOR_MIDNIGHT_BLUE(
+        id = "COLOR_MIDNIGHT_BLUE",
+        nameZh = "深邃幽蓝",
+        nameEn = "Midnight Navy",
+        colorLong = 0xFF0F172AL
     ),
     CUSTOM(
         id = "CUSTOM",
         nameZh = "自定义本地图片",
         nameEn = "Custom Image",
-        drawableRes = null
+        colorLong = null
     );
 
     companion object {

@@ -207,7 +207,7 @@ fun ThemeSelectionSheet(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (isChinese) "背景壁纸 (预设 / 本地)" else "Background Wallpapers",
+                        text = if (isChinese) "背景纯色与本地壁纸" else "Solid Color & Local Wallpaper",
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -431,14 +431,6 @@ fun WallpaperCard(
     isChinese: Boolean,
     onClick: () -> Unit
 ) {
-    val modelToDisplay: Any? = when (wallpaper) {
-        WallpaperPresetId.CUSTOM -> {
-            if (!customWallpaperPath.isNullOrEmpty()) File(customWallpaperPath) else null
-        }
-        WallpaperPresetId.NONE -> null
-        else -> wallpaper.drawableRes
-    }
-
     Card(
         modifier = Modifier
             .width(105.dp)
@@ -455,44 +447,53 @@ fun WallpaperCard(
         )
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            if (modelToDisplay != null) {
-                AsyncImage(
-                    model = modelToDisplay,
-                    contentDescription = wallpaper.nameZh,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(110.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            } else if (wallpaper == WallpaperPresetId.CUSTOM) {
+            if (wallpaper.colorLong != null) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(110.dp)
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primaryContainer,
-                                    MaterialTheme.colorScheme.tertiaryContainer
+                        .background(Color(wallpaper.colorLong))
+                )
+            } else if (wallpaper == WallpaperPresetId.CUSTOM) {
+                if (!customWallpaperPath.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = File(customWallpaperPath),
+                        contentDescription = wallpaper.nameZh,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(110.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(110.dp)
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.primaryContainer,
+                                        MaterialTheme.colorScheme.tertiaryContainer
+                                    )
                                 )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.AddPhotoAlternate,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(24.dp)
                             )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.AddPhotoAlternate,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = if (isChinese) "点击选择" else "Pick Image",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (isChinese) "点击选择" else "Pick Image",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                 }
             } else {
