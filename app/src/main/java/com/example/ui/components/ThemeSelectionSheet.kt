@@ -456,27 +456,15 @@ fun WallpaperCard(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             if (modelToDisplay != null) {
-                if (modelToDisplay is Int) {
-                    Image(
-                        painter = painterResource(id = modelToDisplay),
-                        contentDescription = wallpaper.nameZh,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(110.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    AsyncImage(
-                        model = modelToDisplay,
-                        contentDescription = wallpaper.nameZh,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(110.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-                }
+                AsyncImage(
+                    model = modelToDisplay,
+                    contentDescription = wallpaper.nameZh,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(110.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
             } else if (wallpaper == WallpaperPresetId.CUSTOM) {
                 Box(
                     modifier = Modifier
