@@ -1,5 +1,7 @@
 package com.example.ui.components
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Palette
@@ -62,21 +65,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.ThemePresetId
 import com.example.ui.theme.WallpaperPresetId
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeSelectionSheet(
     selectedTheme: ThemePresetId,
     selectedWallpaper: WallpaperPresetId,
+    customWallpaperPath: String?,
     wallpaperOpacity: Float,
     isChinese: Boolean,
     onThemeSelect: (ThemePresetId) -> Unit,
     onWallpaperSelect: (WallpaperPresetId) -> Unit,
+    onPickCustomWallpaper: (android.net.Uri) -> Unit,
     onOpacityChange: (Float) -> Unit,
     onResetDefault: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        if (uri != null) {
+            onPickCustomWallpaper(uri)
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -179,19 +193,43 @@ fun ThemeSelectionSheet(
             Spacer(modifier = Modifier.height(22.dp))
 
             // Wallpaper Selection Title
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Wallpaper,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = if (isChinese) "背景壁纸样式" else "Background Wallpapers",
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Wallpaper,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = if (isChinese) "背景壁纸 (预设 / 本地)" else "Background Wallpapers",
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                // Quick Local Picker Button
+                OutlinedButton(
+                    onClick = { imagePickerLauncher.launch("image/*") },
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddPhotoAlternate,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (isChinese) "选择本地相册" else "Pick Local Image",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -205,9 +243,20 @@ fun ThemeSelectionSheet(
                     val isSelected = wallpaper == selectedWallpaper
                     WallpaperCard(
                         wallpaper = wallpaper,
+                        customWallpaperPath = customWallpaperPath,
                         isSelected = isSelected,
                         isChinese = isChinese,
-                        onClick = { onWallpaperSelect(wallpaper) }
+                        onClick = {
+                            if (wallpaper == WallpaperPresetId.CUSTOM) {
+                                if (customWallpaperPath.isNullOrEmpty()) {
+                                    imagePickerLauncher.launch("image/*")
+                                } else {
+                                    onWallpaperSelect(wallpaper)
+                                }
+                            } else {
+                                onWallpaperSelect(wallpaper)
+                            }
+                        }
                     )
                 }
             }
@@ -377,10 +426,19 @@ fun ThemeSwatchCard(
 @Composable
 fun WallpaperCard(
     wallpaper: WallpaperPresetId,
+    customWallpaperPath: String?,
     isSelected: Boolean,
     isChinese: Boolean,
     onClick: () -> Unit
 ) {
+    val modelToDisplay: Any? = when (wallpaper) {
+        WallpaperPresetId.CUSTOM -> {
+            if (!customWallpaperPath.isNullOrEmpty()) File(customWallpaperPath) else null
+        }
+        WallpaperPresetId.NONE -> null
+        else -> wallpaper.drawableRes
+    }
+
     Card(
         modifier = Modifier
             .width(105.dp)
@@ -397,9 +455,9 @@ fun WallpaperCard(
         )
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            if (wallpaper.drawableRes != null) {
+            if (modelToDisplay != null) {
                 AsyncImage(
-                    model = wallpaper.drawableRes,
+                    model = modelToDisplay,
                     contentDescription = wallpaper.nameZh,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -407,6 +465,36 @@ fun WallpaperCard(
                         .clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Crop
                 )
+            } else if (wallpaper == WallpaperPresetId.CUSTOM) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(110.dp)
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primaryContainer,
+                                    MaterialTheme.colorScheme.tertiaryContainer
+                                )
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.AddPhotoAlternate,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = if (isChinese) "点击选择" else "Pick Image",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
             } else {
                 Box(
                     modifier = Modifier

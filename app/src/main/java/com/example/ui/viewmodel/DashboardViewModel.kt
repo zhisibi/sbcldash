@@ -97,8 +97,33 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     )
     val selectedWallpaperPreset: StateFlow<WallpaperPresetId> = _selectedWallpaperPreset.asStateFlow()
 
+    private val _customWallpaperPath = MutableStateFlow<String?>(
+        prefs.getString("custom_wallpaper_path", null)
+    )
+    val customWallpaperPath: StateFlow<String?> = _customWallpaperPath.asStateFlow()
+
+    val activeWallpaperModel: StateFlow<Any?> = kotlinx.coroutines.flow.combine(
+        _selectedWallpaperPreset,
+        _customWallpaperPath
+    ) { preset, customPath ->
+        when (preset) {
+            WallpaperPresetId.CUSTOM -> {
+                if (!customPath.isNullOrEmpty()) {
+                    val file = java.io.File(customPath)
+                    if (file.exists()) file else null
+                } else null
+            }
+            WallpaperPresetId.NONE -> null
+            else -> preset.drawableRes
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.Eagerly,
+        initialValue = null
+    )
+
     private val _wallpaperOpacity = MutableStateFlow(
-        prefs.getFloat("wallpaper_opacity", 0.30f)
+        prefs.getFloat("wallpaper_opacity", 0.50f)
     )
     val wallpaperOpacity: StateFlow<Float> = _wallpaperOpacity.asStateFlow()
 
@@ -146,6 +171,31 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         prefs.edit().putString("wallpaper_preset", preset.id).apply()
     }
 
+    fun setCustomWallpaper(uri: android.net.Uri, context: android.content.Context) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                if (inputStream != null) {
+                    val file = java.io.File(context.filesDir, "custom_wallpaper.jpg")
+                    val outputStream = java.io.FileOutputStream(file)
+                    inputStream.copyTo(outputStream)
+                    inputStream.close()
+                    outputStream.close()
+
+                    _customWallpaperPath.value = file.absolutePath
+                    prefs.edit().putString("custom_wallpaper_path", file.absolutePath).apply()
+                    _selectedWallpaperPreset.value = WallpaperPresetId.CUSTOM
+                    prefs.edit().putString("wallpaper_preset", WallpaperPresetId.CUSTOM.id).apply()
+
+                    _toastEvents.emit(if (_isChinese.value) "已成功设置自定义壁纸！" else "Custom wallpaper applied!")
+                }
+            } catch (e: Exception) {
+                com.example.util.CrashLogManager.logCustomError(context, "SetCustomWallpaper", "Failed to save wallpaper", e)
+                _toastEvents.emit(if (_isChinese.value) "设置本地壁纸失败: ${e.message}" else "Failed to set custom wallpaper")
+            }
+        }
+    }
+
     fun setWallpaperOpacity(opacity: Float) {
         _wallpaperOpacity.value = opacity
         prefs.edit().putFloat("wallpaper_opacity", opacity).apply()
@@ -154,7 +204,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun resetThemeToDefault() {
         setThemePreset(ThemePresetId.DEFAULT_VIOLET)
         setWallpaperPreset(WallpaperPresetId.NONE)
-        setWallpaperOpacity(0.30f)
+        setWallpaperOpacity(0.50f)
         viewModelScope.launch {
             _toastEvents.emit(if (_isChinese.value) "已恢复默认主题与壁纸" else "Reset to default theme & wallpaper")
         }

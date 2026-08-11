@@ -303,6 +303,12 @@ enum class WallpaperPresetId(
         nameZh = "璀璨星空",
         nameEn = "Starry Cosmos",
         drawableRes = R.drawable.img_wallpaper_cosmos
+    ),
+    CUSTOM(
+        id = "CUSTOM",
+        nameZh = "自定义本地图片",
+        nameEn = "Custom Image",
+        drawableRes = null
     );
 
     companion object {

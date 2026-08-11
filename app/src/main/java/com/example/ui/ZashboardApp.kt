@@ -84,11 +84,15 @@ fun ZashboardApp(
 
     val selectedTheme by viewModel.selectedThemePreset.collectAsState()
     val selectedWallpaper by viewModel.selectedWallpaperPreset.collectAsState()
+    val customWallpaperPath by viewModel.customWallpaperPath.collectAsState()
+    val activeWallpaperModel by viewModel.activeWallpaperModel.collectAsState()
     val wallpaperOpacity by viewModel.wallpaperOpacity.collectAsState()
     val showThemeSheet by viewModel.showThemeSheet.collectAsState()
 
     val showCrashLogDialog by viewModel.showCrashLogDialog.collectAsState()
     val hasUnreadCrashLog by viewModel.hasUnreadCrashLog.collectAsState()
+
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.toastEvents.collect { message ->
@@ -97,11 +101,15 @@ fun ZashboardApp(
     }
 
     ZashboardTheme(themePreset = selectedTheme) {
-        Box(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             // Render Background Wallpaper if selected
-            if (selectedWallpaper.drawableRes != null) {
+            if (activeWallpaperModel != null) {
                 AsyncImage(
-                    model = selectedWallpaper.drawableRes,
+                    model = activeWallpaperModel,
                     contentDescription = "Background Wallpaper",
                     modifier = Modifier
                         .fillMaxSize()
@@ -112,7 +120,7 @@ fun ZashboardApp(
 
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
-                containerColor = if (selectedWallpaper.drawableRes != null) Color.Transparent else MaterialTheme.colorScheme.background,
+                containerColor = if (activeWallpaperModel != null) Color.Transparent else MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 topBar = {
                     TopAppBar(
@@ -359,10 +367,12 @@ fun ZashboardApp(
                 ThemeSelectionSheet(
                     selectedTheme = selectedTheme,
                     selectedWallpaper = selectedWallpaper,
+                    customWallpaperPath = customWallpaperPath,
                     wallpaperOpacity = wallpaperOpacity,
                     isChinese = isChinese,
                     onThemeSelect = { viewModel.setThemePreset(it) },
                     onWallpaperSelect = { viewModel.setWallpaperPreset(it) },
+                    onPickCustomWallpaper = { uri -> viewModel.setCustomWallpaper(uri, context) },
                     onOpacityChange = { viewModel.setWallpaperOpacity(it) },
                     onResetDefault = { viewModel.resetThemeToDefault() },
                     onDismiss = { viewModel.closeThemeSheet() }
