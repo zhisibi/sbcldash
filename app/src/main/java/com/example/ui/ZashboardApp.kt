@@ -108,14 +108,26 @@ fun ZashboardApp(
         ) {
             // Render Background Wallpaper if selected
             if (activeWallpaperModel != null) {
-                AsyncImage(
-                    model = activeWallpaperModel,
-                    contentDescription = "Background Wallpaper",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(wallpaperOpacity),
-                    contentScale = ContentScale.Crop
-                )
+                val currentWallpaper = activeWallpaperModel
+                if (currentWallpaper is Int) {
+                    Image(
+                        painter = painterResource(id = currentWallpaper),
+                        contentDescription = "Background Wallpaper",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(wallpaperOpacity),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    AsyncImage(
+                        model = currentWallpaper,
+                        contentDescription = "Background Wallpaper",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(wallpaperOpacity),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
 
             Scaffold(
@@ -128,7 +140,7 @@ fun ZashboardApp(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(28.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(MaterialTheme.colorScheme.primary),
                                     contentAlignment = Alignment.Center
@@ -142,17 +154,20 @@ fun ZashboardApp(
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.width(10.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
 
                                 Text(
                                     text = "Zashboard",
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         },
                         actions = {
-                            // Small connection indicator dot + chip
+                            // Connection status chip
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
@@ -162,12 +177,12 @@ fun ZashboardApp(
                                         else MaterialTheme.colorScheme.errorContainer
                                     )
                                     .clickable { selectedTab = 4 }
-                                    .padding(horizontal = 8.dp, vertical = 5.dp)
+                                    .padding(horizontal = 7.dp, vertical = 4.dp)
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(
                                         modifier = Modifier
-                                            .size(8.dp)
+                                            .size(7.dp)
                                             .clip(CircleShape)
                                             .background(
                                                 if (isDemoMode) MaterialTheme.colorScheme.tertiary
@@ -175,7 +190,7 @@ fun ZashboardApp(
                                                 else MaterialTheme.colorScheme.error
                                             )
                                     )
-                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = if (isChinese) {
                                             if (isDemoMode) "演示" else if (isConnected) "在线" else "离线"
@@ -190,29 +205,7 @@ fun ZashboardApp(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.width(4.dp))
-
-                            IconButton(
-                                onClick = { viewModel.openCrashLogDialog() },
-                                modifier = Modifier.testTag("top_app_bar_crash_log")
-                            ) {
-                                BadgedBox(
-                                    badge = {
-                                        if (hasUnreadCrashLog) {
-                                            Badge(
-                                                containerColor = MaterialTheme.colorScheme.error,
-                                                contentColor = MaterialTheme.colorScheme.onError
-                                            )
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.BugReport,
-                                        contentDescription = if (isChinese) "崩溃与运行日志" else "Crash Logs",
-                                        tint = if (hasUnreadCrashLog) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
+                            Spacer(modifier = Modifier.width(2.dp))
 
                             IconButton(
                                 onClick = { viewModel.openThemeSheet() },
@@ -227,10 +220,10 @@ fun ZashboardApp(
 
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(RoundedCornerShape(10.dp))
                                     .background(MaterialTheme.colorScheme.primaryContainer)
                                     .clickable { viewModel.toggleLanguage() }
-                                    .padding(horizontal = 8.dp, vertical = 5.dp)
+                                    .padding(horizontal = 7.dp, vertical = 4.dp)
                                     .testTag("top_app_bar_lang_toggle"),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -253,13 +246,13 @@ fun ZashboardApp(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = if (selectedWallpaper.drawableRes != null) MaterialTheme.colorScheme.surface.copy(alpha = 0.88f) else MaterialTheme.colorScheme.surface
+                            containerColor = if (activeWallpaperModel != null) MaterialTheme.colorScheme.surface.copy(alpha = 0.70f) else MaterialTheme.colorScheme.surface
                         )
                     )
                 },
                 bottomBar = {
                     NavigationBar(
-                        containerColor = if (selectedWallpaper.drawableRes != null) MaterialTheme.colorScheme.surface.copy(alpha = 0.88f) else MaterialTheme.colorScheme.surface,
+                        containerColor = if (activeWallpaperModel != null) MaterialTheme.colorScheme.surface.copy(alpha = 0.70f) else MaterialTheme.colorScheme.surface,
                         modifier = Modifier.testTag("main_navigation_bar")
                     ) {
                         NavigationBarItem(

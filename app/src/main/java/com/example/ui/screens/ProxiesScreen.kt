@@ -101,12 +101,13 @@ fun ProxiesScreen(
                     onValueChange = { viewModel.proxySearchQuery.value = it },
                     modifier = Modifier
                         .weight(1f)
+                        .height(50.dp)
                         .testTag("proxy_search_field"),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
                     placeholder = { 
                         Text(
                             text = if (isChinese) "搜索节点或分组..." else "Search proxy group or node...",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         ) 
@@ -118,11 +119,13 @@ fun ProxiesScreen(
                             modifier = Modifier.size(18.dp)
                         )
                     },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(14.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        focusedContainerColor = MaterialTheme.colorScheme.surface
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                        focusedBorderColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -130,25 +133,25 @@ fun ProxiesScreen(
 
                 Button(
                     onClick = {
-                        // Test latency for main group nodes
                         groups.keys.forEach { groupName ->
                             viewModel.testProxyDelay(groupName)
                         }
                     },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 0.dp),
                     modifier = Modifier
-                        .height(48.dp)
+                        .height(50.dp)
                         .testTag("btn_speedtest_all")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Speed,
                         contentDescription = "Test Delay",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = if (isChinese) "测速" else "Speedtest", 
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         softWrap = false
@@ -232,7 +235,7 @@ fun ProxyGroupCard(
             .testTag("proxy_group_card_$groupName"),
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
         ),
         border = androidx.compose.foundation.BorderStroke(1.dp, BentoBorderColor.copy(alpha = 0.5f))
     ) {
