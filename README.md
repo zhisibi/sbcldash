@@ -88,6 +88,8 @@ chmod +x gradlew
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
 
 ### 💡 常见问题 (Troubleshooting)
+- **Release APK 签名配置**：
+  当环境变量 `STORE_PASSWORD` 与密钥文件未配置时，Release 构建任务会平滑回退使用 AGP 内置默认签名（Default Debug Key），确保 GitHub Actions CI 及本地能直接打出可安装测试的 Release APK。
 - **KSP / Room 编译空指针异常 (`Task :app:kspDebugKotlin NullPointerException`)**：
   在 KSP2 模式下，项目已配置 `ksp.useKSP2=true` 与 `ksp { arg("room.generateKotlin", "true") }` 参数。如果遇到 KSP 线程异常，请确保清理 Gradle 缓存后重新构建：`./gradlew clean assembleDebug`。
 
