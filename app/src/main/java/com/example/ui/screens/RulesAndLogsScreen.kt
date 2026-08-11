@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.LogItem
@@ -136,11 +137,20 @@ fun RulesTabContent(viewModel: DashboardViewModel, isChinese: Boolean) {
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("rule_search_field"),
-            placeholder = { Text(if (isChinese) "搜索规则 (按域名、IP或目标代理)..." else "Filter routing rules by domain, IP, or target...") },
+            textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+            placeholder = { 
+                Text(
+                    text = if (isChinese) "搜索规则 (按域名、IP或目标代理)..." else "Filter routing rules by domain, IP, or target...",
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                ) 
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
+                    contentDescription = "Search",
+                    modifier = Modifier.size(18.dp)
                 )
             },
             shape = RoundedCornerShape(16.dp),

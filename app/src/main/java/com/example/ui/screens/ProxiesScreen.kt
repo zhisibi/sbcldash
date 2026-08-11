@@ -101,12 +101,12 @@ fun ProxiesScreen(
                     onValueChange = { viewModel.proxySearchQuery.value = it },
                     modifier = Modifier
                         .weight(1f)
-                        .height(52.dp)
                         .testTag("proxy_search_field"),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                     placeholder = { 
                         Text(
                             text = if (isChinese) "搜索节点或分组..." else "Search proxy group or node...",
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         ) 
@@ -115,7 +115,7 @@ fun ProxiesScreen(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                     },
                     shape = RoundedCornerShape(16.dp),
@@ -137,13 +137,13 @@ fun ProxiesScreen(
                     },
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .height(52.dp)
+                        .height(48.dp)
                         .testTag("btn_speedtest_all")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Speed,
                         contentDescription = "Test Delay",
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -362,7 +362,7 @@ fun ProxyNodeItemRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -372,7 +372,7 @@ fun ProxyNodeItemRow(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(20.dp)
                         .clip(CircleShape)
                         .background(
                             if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
@@ -389,26 +389,31 @@ fun ProxyNodeItemRow(
                             imageVector = Icons.Default.Check,
                             contentDescription = "Selected",
                             tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
 
                 Column {
                     Text(
                         text = nodeName,
-                        style = MaterialTheme.typography.bodyMedium.copy(
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 13.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                         ),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Text(
                         text = proxyNode.type,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -419,11 +424,14 @@ fun ProxyNodeItemRow(
                         .clip(RoundedCornerShape(8.dp))
                         .background(delayColor.copy(alpha = 0.15f))
                         .clickable { onTestDelay() }
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = delayText,
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = delayColor
                     )
                 }

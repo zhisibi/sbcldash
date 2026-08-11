@@ -194,11 +194,20 @@ fun ConnectionsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("connection_search_field"),
-                placeholder = { Text(if (isChinese) "搜索主机、IP、规则或进程..." else "Search host, IP, rule or process...") },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                placeholder = { 
+                    Text(
+                        text = if (isChinese) "搜索主机、IP、规则或进程..." else "Search host, IP, rule or process...",
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    ) 
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = "Search",
+                        modifier = Modifier.size(18.dp)
                     )
                 },
                 shape = RoundedCornerShape(16.dp),
