@@ -1,0 +1,6 @@
+{
+  "name": "Zashboard",
+  "description": "Clash & Sing-box modern control panel dashboard app",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
