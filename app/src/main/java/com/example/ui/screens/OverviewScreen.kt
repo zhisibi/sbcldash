@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Refresh
@@ -81,6 +82,8 @@ fun OverviewScreen(
     val memoryInfo by viewModel.memoryInfo.collectAsState()
     val configsInfo by viewModel.configsInfo.collectAsState()
     val proxiesState by viewModel.proxiesState.collectAsState()
+    val selectedTheme by viewModel.selectedThemePreset.collectAsState()
+    val selectedWallpaper by viewModel.selectedWallpaperPreset.collectAsState()
 
     val scrollState = rememberScrollState()
 
@@ -571,6 +574,70 @@ fun OverviewScreen(
                         modifier = Modifier.testTag("allow_lan_switch")
                     )
                 }
+            }
+        }
+
+        // Bento Card: Theme & Wallpaper Customization Access
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { viewModel.openThemeSheet() }
+                .testTag("theme_settings_card"),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BentoBorderColor.copy(alpha = 0.5f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Palette,
+                            contentDescription = "Theme Palette",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column {
+                        Text(
+                            text = if (isChinese) "主题与壁纸设置" else "Theme & Wallpaper",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "${if (isChinese) selectedTheme.nameZh else selectedTheme.nameEn} · ${if (isChinese) selectedWallpaper.nameZh else selectedWallpaper.nameEn}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Customize Theme",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
 

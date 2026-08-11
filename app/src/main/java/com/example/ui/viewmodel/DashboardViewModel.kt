@@ -1,6 +1,7 @@
 package com.example.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.db.AppDatabase
@@ -15,6 +16,8 @@ import com.example.data.model.RulesResponse
 import com.example.data.model.TrafficResponse
 import com.example.data.model.VersionResponse
 import com.example.data.repository.DashboardRepository
+import com.example.ui.theme.ThemePresetId
+import com.example.ui.theme.WallpaperPresetId
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -80,6 +83,59 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val connectionSearchQuery = MutableStateFlow("")
     val ruleSearchQuery = MutableStateFlow("")
     val logFilterLevel = MutableStateFlow("ALL")
+
+    // Theme & Wallpaper State
+    private val prefs = application.getSharedPreferences("zashboard_settings", Context.MODE_PRIVATE)
+
+    private val _selectedThemePreset = MutableStateFlow(
+        ThemePresetId.fromId(prefs.getString("theme_preset", ThemePresetId.DEFAULT_VIOLET.id) ?: ThemePresetId.DEFAULT_VIOLET.id)
+    )
+    val selectedThemePreset: StateFlow<ThemePresetId> = _selectedThemePreset.asStateFlow()
+
+    private val _selectedWallpaperPreset = MutableStateFlow(
+        WallpaperPresetId.fromId(prefs.getString("wallpaper_preset", WallpaperPresetId.NONE.id) ?: WallpaperPresetId.NONE.id)
+    )
+    val selectedWallpaperPreset: StateFlow<WallpaperPresetId> = _selectedWallpaperPreset.asStateFlow()
+
+    private val _wallpaperOpacity = MutableStateFlow(
+        prefs.getFloat("wallpaper_opacity", 0.30f)
+    )
+    val wallpaperOpacity: StateFlow<Float> = _wallpaperOpacity.asStateFlow()
+
+    private val _showThemeSheet = MutableStateFlow(false)
+    val showThemeSheet: StateFlow<Boolean> = _showThemeSheet.asStateFlow()
+
+    fun openThemeSheet() {
+        _showThemeSheet.value = true
+    }
+
+    fun closeThemeSheet() {
+        _showThemeSheet.value = false
+    }
+
+    fun setThemePreset(preset: ThemePresetId) {
+        _selectedThemePreset.value = preset
+        prefs.edit().putString("theme_preset", preset.id).apply()
+    }
+
+    fun setWallpaperPreset(preset: WallpaperPresetId) {
+        _selectedWallpaperPreset.value = preset
+        prefs.edit().putString("wallpaper_preset", preset.id).apply()
+    }
+
+    fun setWallpaperOpacity(opacity: Float) {
+        _wallpaperOpacity.value = opacity
+        prefs.edit().putFloat("wallpaper_opacity", opacity).apply()
+    }
+
+    fun resetThemeToDefault() {
+        setThemePreset(ThemePresetId.DEFAULT_VIOLET)
+        setWallpaperPreset(WallpaperPresetId.NONE)
+        setWallpaperOpacity(0.30f)
+        viewModelScope.launch {
+            _toastEvents.emit(if (_isChinese.value) "已恢复默认主题与壁纸" else "Reset to default theme & wallpaper")
+        }
+    }
 
     // UI Toast Events
     private val _toastEvents = MutableSharedFlow<String>()

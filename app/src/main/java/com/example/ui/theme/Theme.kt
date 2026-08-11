@@ -50,6 +50,7 @@ private val LightColorScheme =
 
 @Composable
 fun ZashboardTheme(
+    themePreset: ThemePresetId = ThemePresetId.DEFAULT_VIOLET,
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false, // Default to Zashboard brand colors
     content: @Composable () -> Unit,
@@ -59,8 +60,8 @@ fun ZashboardTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> themePreset.darkColorScheme
+        else -> themePreset.lightColorScheme
     }
 
     MaterialTheme(
@@ -76,5 +77,5 @@ fun MyApplicationTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    ZashboardTheme(darkTheme = darkTheme, dynamicColor = dynamicColor, content = content)
+    ZashboardTheme(themePreset = ThemePresetId.DEFAULT_VIOLET, darkTheme = darkTheme, dynamicColor = dynamicColor, content = content)
 }
