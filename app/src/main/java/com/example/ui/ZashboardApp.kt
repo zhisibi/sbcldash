@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.ui.components.CrashLogDialog
 import com.example.ui.components.ThemeSelectionSheet
 import com.example.ui.screens.BackendsScreen
@@ -99,8 +100,8 @@ fun ZashboardApp(
         Box(modifier = modifier.fillMaxSize()) {
             // Render Background Wallpaper if selected
             if (selectedWallpaper.drawableRes != null) {
-                Image(
-                    painter = painterResource(id = selectedWallpaper.drawableRes!!),
+                AsyncImage(
+                    model = selectedWallpaper.drawableRes,
                     contentDescription = "Background Wallpaper",
                     modifier = Modifier
                         .fillMaxSize()

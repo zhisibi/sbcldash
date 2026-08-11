@@ -56,6 +56,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -397,8 +398,8 @@ fun WallpaperCard(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             if (wallpaper.drawableRes != null) {
-                Image(
-                    painter = painterResource(id = wallpaper.drawableRes),
+                AsyncImage(
+                    model = wallpaper.drawableRes,
                     contentDescription = wallpaper.nameZh,
                     modifier = Modifier
                         .fillMaxWidth()
